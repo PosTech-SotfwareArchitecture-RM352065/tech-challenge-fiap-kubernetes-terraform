@@ -1,6 +1,6 @@
 name: 'Terraform Plan'
 
-on: [push, pull_request]
+on: [pull_request]
 
 env:
   TF_LOG: INFO
@@ -88,13 +88,3 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
-
-    #   # On push to main, build or change infrastructure according to Terraform configuration files
-    # - name: Terraform Apply
-    #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #   run: terraform apply -auto-approve

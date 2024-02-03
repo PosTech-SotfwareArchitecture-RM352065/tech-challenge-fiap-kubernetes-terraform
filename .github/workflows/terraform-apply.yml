@@ -1,6 +1,6 @@
-name: 'Terraform Plan'
+name: 'Terraform Apply'
 
-on: [push, pull_request]
+on: [push]
 
 env:
   TF_LOG: INFO
