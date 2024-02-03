@@ -1,6 +1,6 @@
-name: 'Terraform Plan'
+name: 'Terraform Apply'
 
-on: [pull_request]
+on: [push]
 
 env:
   TF_LOG: INFO
@@ -47,44 +47,12 @@ jobs:
     #     CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
       run: terraform init
 
-
-    # Run a terraform plan for pull requests only
-    - name: Terraform Plan
-      id: plan
-      if: github.event_name == 'pull_request'
+      # On push to main, build or change infrastructure according to Terraform configuration files
+    - name: Terraform Apply
+    #   if: github.event_name == 'push'
     #   env:
     #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
     #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
     #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
     #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terraform plan -no-color
-    
-    # Add a comment to pull requests with plan results
-    - name: add-plan-comment
-      id: comment
-      uses: actions/github-script@v3
-      if: github.event_name == 'pull_request'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
-          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-      
-          <details><summary>Show Plan</summary>
-          
-          \`\`\`${process.env.PLAN}\`\`\`
-          
-          </details>
-          
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+      run: terraform apply -auto-approve
