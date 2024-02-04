@@ -2,7 +2,7 @@ name: 'Terraform Destroy'
 
 on:
   schedule:
-      - cron: '5 * * * *'
+    - cron: '5 * * * *'
 
 env:
   TF_LOG: INFO
