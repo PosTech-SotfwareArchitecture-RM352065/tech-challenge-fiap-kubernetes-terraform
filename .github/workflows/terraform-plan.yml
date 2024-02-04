@@ -6,8 +6,8 @@ env:
   TF_LOG: INFO
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  azure_terraform:
+    name: 'Azure - Terraform Plan'
     runs-on: ubuntu-latest
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -37,37 +37,22 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       id: init
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-    #     STORAGE_ACCOUNT: ${{ secrets.STORAGE_ACCOUNT }}
-    #     CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
       run: terraform init
 
 
     # Run a terraform plan for pull requests only
     - name: Terraform Plan
       id: plan
-      if: github.event_name == 'pull_request'
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       run: terraform plan -no-color
     
     # Add a comment to pull requests with plan results
     - name: add-plan-comment
       id: comment
       uses: actions/github-script@v3
-      if: github.event_name == 'pull_request'
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ github.token }}
         script: |
           const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`

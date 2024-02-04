@@ -1,13 +1,15 @@
-name: 'Terraform Apply'
+name: 'Terraform Destroy'
 
-on: [push]
+on:
+    schedule:
+        - cron: 0 22 * * *
 
 env:
   TF_LOG: INFO
 
 jobs:
   azure_terraform:
-    name: 'Azure - Terraform Appy'
+    name: 'Azure - Terraform deploy'
     runs-on: ubuntu-latest
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -40,6 +42,6 @@ jobs:
       run: terraform init
 
       # On push to main, build or change infrastructure according to Terraform configuration files
-    - name: Terraform Apply
-      id: apply
-      run: terraform apply -auto-approve
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy -auto-approve
