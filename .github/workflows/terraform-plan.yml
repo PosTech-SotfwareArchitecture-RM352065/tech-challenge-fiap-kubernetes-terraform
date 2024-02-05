@@ -28,6 +28,10 @@ jobs:
       with:
         terraform_version: 1.7.2
 
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       id: init
@@ -41,7 +45,6 @@ jobs:
         CONTAINER_NAME: ${{ secrets.AZURE_TF_STATE_CONTAINER_NAME }}
       run: terraform init -backend-config="storage_account_name=$STORAGE_ACCOUNT" -backend-config="container_name=$CONTAINER_NAME" -backend-config="resource_group_name=$RESOURCE_GROUP"
 
-
     # Run a terraform plan for pull requests only
     - name: Terraform Plan
       id: plan
@@ -50,31 +53,34 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }}
         ARM_TENANT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SUBSCRIPTION_ID }}
-      run: terraform plan -no-color
+      run: terraform plan -no-color -input=false
+      continue-on-error: true
     
     # Add a comment to pull requests with plan results
-    - name: add-plan-comment
+    - name: Update pull request
       id: comment
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6
       env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        PLAN: ${{ steps.plan.outputs.stdout }}
       with:
-        github-token: ${{ github.token }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-      
+
           <details><summary>Show Plan</summary>
-          
-          \`\`\`${process.env.PLAN}\`\`\`
-          
+
+          \`\`\`terraform\n
+          ${process.env.PLAN}
+          \`\`\`
+
           </details>
-          
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            
-          github.issues.createComment({
+
+          *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+          github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
