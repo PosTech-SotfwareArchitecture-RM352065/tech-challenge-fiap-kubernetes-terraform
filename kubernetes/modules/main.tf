@@ -8,16 +8,9 @@ terraform {
   }
 }
 
-data "terraform_remote_state" "kubeconfig_file" {
-  backend = "local"
-
-  config = {
-    path = "${path.module}/../dirA/terraform.tfstate"
-  }
-}
-
 provider "kubernetes" {
-  config_path = "${data.terraform_remote_state.kubeconfig_file.outputs.kubeconfig_file}"
+  config_path    = "${path.root}/kubeconfig"
+  config_context = "k8s-context"
 }
 
 resource "local_file" "kubeconfig" {
