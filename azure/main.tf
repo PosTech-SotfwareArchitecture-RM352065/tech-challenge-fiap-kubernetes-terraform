@@ -40,6 +40,11 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     type = "SystemAssigned"
   }
 
+  network_profile {
+    network_plugin    = "kubenet"
+    load_balancer_sku = "standard"
+  }
+
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
   }
@@ -53,4 +58,12 @@ output "client_certificate" {
 output "kube_config" {
   value     = azurerm_kubernetes_cluster.kubernetes_cluster.kube_config_raw
   sensitive = true
+}
+
+module "k8s" {
+  source                         = "../kubernetes/modules/"
+  kubeconfig                     = azurerm_kubernetes_cluster.kubernetes_cluster.kube_config_raw
+  main_database_connectionstring = var.main_database_connectionstring
+  cart_database_connectionstring = var.cart_database_connectionstring
+  authentication_secret_key      = var.authentication_secret_key
 }
