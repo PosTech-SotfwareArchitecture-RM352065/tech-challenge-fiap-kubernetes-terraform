@@ -2,16 +2,13 @@
 terraform {
   required_providers {
     kubernetes = {
-      source = "hashicorp/kubernetes"
+      source  = "hashicorp/kubernetes"
       version = "2.27.0"
     }
   }
 }
 
-provider "kubernetes" {
-  config_path    = "${path.root}/kubeconfig"
-  config_context = "k8s-context"
-}
+
 
 resource "local_file" "kubeconfig" {
   content  = var.kubeconfig
@@ -26,7 +23,7 @@ resource "kubernetes_secret" "api_secrets" {
   data = {
     MAIN_CONNECTION_STRING = var.main_database_connectionstring
     CART_CONNECTION_STRING = var.cart_database_connectionstring
-    AUTH_SECRET_KEY       = var.authentication_secret_key
+    AUTH_SECRET_KEY        = var.authentication_secret_key
   }
 
   type = "Opaque"
