@@ -128,7 +128,7 @@ resource "kubernetes_deployment" "api_deployment" {
           }
 
           env {
-            name = "JwtSettings__SecreKey"
+            name = "JwtSettings__SecretKey"
             value_from {
               secret_key_ref {
                 key  = "AUTH_SECRET_KEY"
