@@ -197,8 +197,9 @@ resource "kubernetes_service" "api_service" {
     }
     session_affinity = "ClientIP"
     port {
-      port        = 9000
-      target_port = 80
+      protocol    = "TCP"
+      port        = 80
+      target_port = 9000
     }
 
     type = "LoadBalancer"
