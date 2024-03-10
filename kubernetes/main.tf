@@ -118,7 +118,7 @@ resource "kubernetes_deployment" "api_deployment" {
           }
 
           env {
-            name = "ConnectionStrings__CartDatabase__Type"
+            name = "ConnectionStrings__CartDatabase__Value"
             value_from {
               secret_key_ref {
                 key  = "CART_CONNECTION_STRING"
