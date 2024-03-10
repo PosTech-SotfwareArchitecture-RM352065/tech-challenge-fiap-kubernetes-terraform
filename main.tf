@@ -10,7 +10,7 @@ terraform {
     }
   }
   backend "azurerm" {
-    key                  = "terraform-k8s.tfstate"
+    key = "terraform-k8s.tfstate"
   }
 }
 
