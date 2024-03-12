@@ -42,7 +42,6 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
-    vnet_subnet_id = data.azurerm_subnet.k8s_subnet.id
   }
 
   identity {
@@ -50,10 +49,10 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   }
 
   network_profile {
-    network_plugin    = "azure"
+    network_plugin    = "kubenet"
     load_balancer_sku = "standard"
-    outbound_type     = "userDefinedRouting"
   }
+
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
