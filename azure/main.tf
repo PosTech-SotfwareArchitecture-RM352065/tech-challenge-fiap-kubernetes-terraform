@@ -7,8 +7,6 @@ terraform {
   }
 }
 
-
-
 resource "azurerm_resource_group" "resource_group" {
   name       = "fiap-tech-challenge-k8s-group"
   location   = "eastus"
@@ -26,9 +24,10 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   dns_prefix          = "sanduba-k8s"
 
   default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_B2s"
+    name           = "default"
+    node_count     = 1
+    vm_size        = "Standard_B2s"
+    vnet_subnet_id = azurerm_subnet.internal.id
   }
 
   identity {
@@ -38,6 +37,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   network_profile {
     network_plugin    = "kubenet"
     load_balancer_sku = "standard"
+    outbound_type     = "userDefinedRouting"
   }
 
   tags = {
