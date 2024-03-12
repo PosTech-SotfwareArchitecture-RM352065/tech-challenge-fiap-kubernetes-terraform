@@ -26,8 +26,8 @@ data "azurerm_virtual_network" "virtual_network" {
   resource_group_name = data.azurerm_resource_group.main_group.name
 }
 
-data "azurerm_subnet" "api_subnet" {
-  name                 = "fiap-tech-challenge-api-subnet"
+data "azurerm_subnet" "k8s_subnet" {
+  name                 = "fiap-tech-challenge-k8s-subnet"
   virtual_network_name = data.azurerm_virtual_network.virtual_network.name
   resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
 }
@@ -42,7 +42,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
-    vnet_subnet_id = data.azurerm_subnet.api_subnet.id
+    vnet_subnet_id = data.azurerm_subnet.k8s_subnet.id
   }
 
   identity {
