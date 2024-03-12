@@ -17,6 +17,21 @@ resource "azurerm_resource_group" "resource_group" {
   }
 }
 
+data "azurerm_resource_group" "main_group" {
+  name = "fiap-tech-challenge-main-group"
+}
+
+data "azurerm_virtual_network" "virtual_network" {
+  name                = "fiap-tech-challenge-network"
+  resource_group_name = data.azurerm_resource_group.main_group.name
+}
+
+data "azurerm_subnet" "api_subnet" {
+  name                 = "fiap-tech-challenge-api-subnet"
+  virtual_network_name = data.azurerm_virtual_network.virtual_network.name
+  resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
+}
+
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-cluster"
   location            = azurerm_resource_group.resource_group.location
@@ -27,7 +42,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
-    vnet_subnet_id = azurerm_subnet.internal.id
+    vnet_subnet_id = data.azurerm_subnet.api_subnet.id
   }
 
   identity {
