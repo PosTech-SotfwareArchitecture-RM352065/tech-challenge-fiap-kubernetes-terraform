@@ -195,13 +195,12 @@ resource "kubernetes_service" "api_service" {
     selector = {
       app = kubernetes_deployment.api_deployment.metadata[0].labels["app"]
     }
-    session_affinity = "ClientIP"
     port {
       protocol    = "TCP"
-      port        = 80
+      port        = 9000
       target_port = 9000
     }
 
-    type = "LoadBalancer"
+    type = "NodePort"
   }
 }
