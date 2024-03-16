@@ -32,17 +32,34 @@ data "azurerm_subnet" "k8s_subnet" {
   resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
 }
 
+data "azurerm_subnet" "gateway_subnet" {
+  name                 = "fiap-tech-challenge-gateway-subnet"
+  virtual_network_name = data.azurerm_virtual_network.virtual_network.name
+  resource_group_name  = data.azurerm_virtual_network.virtual_network.resource_group_name
+}
+
+data "azurerm_log_analytics_workspace" "log_workspace" {
+  name                = "fiap-tech-challenge-observability-workspace"
+  resource_group_name = "fiap-tech-challenge-observability-group"
+}
+
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-cluster"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
+  node_resource_group = azurerm_resource_group.resource_group.name
   dns_prefix          = "sanduba-k8s"
-
+  
   default_node_pool {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
-    vnet_subnet_id = data.azurerm_subnet.k8s_subnet.id
+  }
+
+
+
+  ingress_application_gateway {
+    subnet_id = data.azurerm_subnet.gateway_subnet.id
   }
 
   identity {
@@ -52,9 +69,11 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   network_profile {
     network_plugin    = "azure"
     load_balancer_sku = "standard"
-    network_policy    = "calico"
   }
 
+  oms_agent {
+    log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
+  }
 
   tags = {
     environment = azurerm_resource_group.resource_group.tags["environment"]
