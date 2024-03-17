@@ -8,6 +8,11 @@ terraform {
   }
 }
 
+resource "local_file" "kubeconfig" {
+  content  = var.kubeconfig
+  filename = "${path.root}/kubeconfig"
+}
+
 resource "kubernetes_secret" "api_secrets" {
   metadata {
     name = "api-secrets"

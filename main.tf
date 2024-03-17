@@ -15,7 +15,7 @@ terraform {
 }
 
 data "azurerm_kubernetes_cluster" "k8s" {
-  depends_on          = [module.aks-cluster] # refresh cluster state before reading
+  depends_on          = [module.aks-cluster]
   name                = "fiap-tech-challenge-cluster"
   resource_group_name = "fiap-tech-challenge-k8s-group"
 }
@@ -28,7 +28,11 @@ provider "kubernetes" {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 module "aks-cluster" {
@@ -38,12 +42,12 @@ module "aks-cluster" {
 module "kubernetes-config" {
   depends_on                     = [module.aks-cluster]
   source                         = "./kubernetes"
+  kubeconfig                     = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
   main_database_connectionstring = var.main_database_connectionstring
   cart_database_connectionstring = var.cart_database_connectionstring
   authentication_secret_key      = var.authentication_secret_key
 }
 
-resource "local_sensitive_file" "kubeconfig_file" {
-  content  = data.azurerm_kubernetes_cluster.k8s.kube_config_raw
-  filename = "${path.root}/kubeconfig"
+output "kubeconfig_path" {
+  value = abspath("${path.root}/kubeconfig")
 }

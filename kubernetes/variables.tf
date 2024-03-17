@@ -17,3 +17,7 @@ variable "environment" {
   type    = string
   default = "Development"
 }
+
+variable "kubeconfig" {
+  type = string
+}
