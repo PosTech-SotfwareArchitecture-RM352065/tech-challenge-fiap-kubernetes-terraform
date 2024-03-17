@@ -54,6 +54,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     name           = "default"
     node_count     = 1
     vm_size        = "Standard_B2s"
+    vnet_subnet_id = data.azurerm_subnet.k8s_subnet.id
   }
 
   ingress_application_gateway {
