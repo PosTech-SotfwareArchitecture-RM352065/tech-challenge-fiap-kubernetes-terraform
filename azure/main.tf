@@ -47,7 +47,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-cluster"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
-  node_resource_group = azurerm_resource_group.resource_group.name
+  node_resource_group = "fiap-tech-challenge-k8s-node-group"
   dns_prefix          = "sanduba-k8s"
   
   default_node_pool {
@@ -55,8 +55,6 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
     node_count     = 1
     vm_size        = "Standard_B2s"
   }
-
-
 
   ingress_application_gateway {
     subnet_id = data.azurerm_subnet.gateway_subnet.id
