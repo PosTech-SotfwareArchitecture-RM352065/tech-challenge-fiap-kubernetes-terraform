@@ -54,4 +54,6 @@ jobs:
         TF_VAR_main_database_connectionstring: ""
         TF_VAR_cart_database_connectionstring: ""
         TF_VAR_authentication_secret_key: ""
-      run: terraform destroy -auto-approve
+      run: |
+        terraform state rm module.kubernetes-config -auto-approve
+        terraform destroy -auto-approve

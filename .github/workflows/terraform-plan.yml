@@ -61,7 +61,9 @@ jobs:
         TF_VAR_main_database_connectionstring: ${{ secrets.APP_MAIN_DATABASE_CONNECTION_STRING }}
         TF_VAR_cart_database_connectionstring: ${{ secrets.APP_CART_DATABASE_CONNECTION_STRING }}
         TF_VAR_authentication_secret_key: ${{ secrets.APP_AUTH_SECRET_KEY }}
-      run: terraform plan -no-color -input=false
+      run: |
+        terraform plan -target=module.aks-cluster -no-color -input=false
+        terraform plan -no-color -input=false
       continue-on-error: true
     
     # Add a comment to pull requests with plan results
