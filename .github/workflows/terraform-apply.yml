@@ -54,5 +54,5 @@ jobs:
         TF_VAR_cart_database_connectionstring: ${{ secrets.APP_CART_DATABASE_CONNECTION_STRING }}
         TF_VAR_authentication_secret_key: ${{ secrets.APP_AUTH_SECRET_KEY }}
       run: |
-        terraform apply -target=module.aks-cluster -auto-approve
+        terraform apply -target=module.aks-cluster
         terraform apply -auto-approve
