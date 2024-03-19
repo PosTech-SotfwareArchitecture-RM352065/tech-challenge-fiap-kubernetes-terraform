@@ -43,12 +43,18 @@ data "azurerm_log_analytics_workspace" "log_workspace" {
   resource_group_name = "fiap-tech-challenge-observability-group"
 }
 
+data "azurerm_application_gateway" "application_gateway" {
+  name                = "fiap-tech-challenge-application-gateway"
+  resource_group_name = data.azurerm_resource_group.main_group.name
+}
+
 resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   name                = "fiap-tech-challenge-cluster"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
   node_resource_group = "fiap-tech-challenge-k8s-node-group"
   dns_prefix          = "sanduba-k8s"
+
   
   default_node_pool {
     name           = "default"
@@ -58,7 +64,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
   }
 
   ingress_application_gateway {
-    subnet_id = data.azurerm_subnet.gateway_subnet.id
+    gateway_id = data.azurerm_application_gateway.application_gateway.id
   }
 
   identity {
@@ -67,6 +73,7 @@ resource "azurerm_kubernetes_cluster" "kubernetes_cluster" {
 
   network_profile {
     network_plugin    = "azure"
+    network_policy    = "calico" 
     load_balancer_sku = "standard"
   }
 

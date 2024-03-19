@@ -188,6 +188,9 @@ resource "kubernetes_service" "api_service" {
     labels = {
       app = "sanduba-api-svc"
     }
+    annotations = {
+      "sevice.beta.kubernetes.io/azure-load-balancer-internal" = "true"
+    }
   }
   spec {
     selector = {
@@ -196,9 +199,38 @@ resource "kubernetes_service" "api_service" {
     port {
       protocol    = "TCP"
       port        = 9000
-      target_port = 9000
     }
 
-    type = "NodePort"
+    type = "LoadBalancer"
+  }
+}
+
+resource "kubernetes_ingress_v1" "api_ingress" {
+  metadata {
+    name = "sanduba-api-ingress"
+    labels = {
+      app = "sanduba-api-ingress"
+    }
+  }
+
+  spec {
+    ingress_class_name = "azure-application-gateway"
+
+    rule {
+      http {
+        path {
+          backend {
+            service {
+              name = kubernetes_service.api_service.metadata[0].name
+              port { 
+                number = kubernetes_service.api_service.spec[0].port[0].port 
+              }
+            }
+          }
+
+          path = "/*"
+        }
+      }
+    }
   }
 }
